@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CHACH — Catch the Offer</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --txt:#e5e7eb; --muted:#94a3b8; --accent:#60a5fa; --accent2:#fbbf24; --danger:#ff6b6b;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial;
+  color:var(--txt);
+  background: radial-gradient(1200px 800px at 10% 10%, #0b1221, transparent 60%),
+              radial-gradient(1000px 600px at 90% 90%, #122036, transparent 55%),
+              linear-gradient(135deg,#0f172a,#1e293b);
+  overflow:hidden;
+}
+
+/* GAME AREA */
+.game-container{
+  position:relative; width:100vw; height:100vh; overflow:hidden;
+  background: url('bg img.png') no-repeat center center/cover;
+}
+.hud{
+  position:absolute; left:0; right:0; top:0; display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px; gap:8px; background:linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));
+  z-index:20;
+}
+#score{ font-weight:800; font-size:clamp(16px,4vw,22px); text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+.hearts{ display:flex; align-items:center; gap:4px; }
+.heart{ width:26px; height:26px; }
+
+.pill{
+  display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
+  background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); backdrop-filter: blur(6px);
+  font-weight:700; box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+#offersPill{ cursor:default; }
+
+#basket{
+  position:absolute; bottom:5vh; left:50%; transform:translateX(-50%);
+  width:min(32vw, 220px); height:min(20vh, 150px); border-radius:18px;
+  background: radial-gradient(circle at 50% 30%, rgba(255,255,255,.08), rgba(0,0,0,.35) 65%),
+              linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow: 0 24px 60px rgba(0,0,0,.45), inset 0 0 120px rgba(255,255,255,.03);
+  overflow:hidden;
+}
+#basket.glow{ box-shadow: 0 0 18px 6px rgba(255,213,79,.65), 0 24px 60px rgba(0,0,0,.45), inset 0 0 120px rgba(255,255,255,.03); }
+
+.falling-item{
+  position:absolute; width:64px; height:64px; background-size:contain; background-repeat:no-repeat; background-position:center;
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
+  will-change: transform, top, left;
+}
+
+/* Trails & particles */
+.ball-trail{
+  position:absolute; width:12px; height:12px; border-radius:50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.9), rgba(125,211,252,.7) 55%, transparent 70%);
+  filter: blur(1px); opacity:.9; animation: trailFade .4s ease-out forwards;
+}
+@keyframes trailFade{ to{ transform: translateY(6px) scale(.7); opacity:0; } }
+
+.particle{
+  position:absolute; width:6px; height:6px; border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, #fff, var(--accent));
+  filter: blur(.2px);
+  animation: pop .5s ease-out forwards;
+}
+@keyframes pop{
+  0%{ opacity:1; transform: translate(0,0) scale(1); }
+  100%{ opacity:0; transform: translate(var(--dx), var(--dy)) scale(.8); }
+}
+.confetti{
+  position:absolute; width:8px; height:14px; background: var(--accent2);
+  transform: rotate(0deg);
+  animation: confFall .8s ease-out forwards;
+}
+.confetti:nth-child(3n){ background: #fb7185; }
+.confetti:nth-child(3n+1){ background: #34d399; }
+.confetti:nth-child(3n+2){ background: #60a5fa; }
+@keyframes confFall{
+  0%{ opacity:1; transform: translate(0,0) rotate(0deg); }
+  100%{ opacity:0; transform: translate(var(--dx), var(--dy)) rotate(220deg); }
+}
+
+/* Flash & shake */
+#flash{ position: fixed; inset:0; background: rgba(255,107,107,.45); opacity:0; pointer-events:none; z-index: 9998; transition: opacity .18s ease; }
+.shake{ animation: shake .25s ease; }
+@keyframes shake{
+  0%{ transform: translate(0,0); } 25%{ transform: translate(4px, -3px); }
+  50%{ transform: translate(-4px, 2px); } 75%{ transform: translate(3px, 3px); } 100%{ transform: translate(0,0); }
+}
+
+/* Floating +1 text */
+.float-text{
+  position: absolute; z-index: 9999; pointer-events:none; font-weight:800; font-size: clamp(18px,4vw,28px);
+  color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,.5); animation: floatUp .7s ease-out forwards;
+}
+@keyframes floatUp{
+  0%{ opacity:0; transform: translate(-50%, -10px) scale(.9); }
+  15%{ opacity:1; }
+  100%{ opacity:0; transform: translate(-50%, -60px) scale(1.05); }
+}
+
+/* On-screen controls (mobile) */
+.ctrl{
+  position:absolute; bottom:20px; width:64px; height:64px; border-radius:50%;
+  display:grid; place-items:center; font-size:28px; font-weight:800; color:#0b1221;
+  background:linear-gradient(180deg,#93c5fd,#60a5fa); box-shadow: 0 12px 30px rgba(96,165,250,.35);
+  user-select:none; -webkit-user-select:none; touch-action:manipulation; z-index:30;
+}
+#left-btn{ left:16px; }
+#right-btn{ right:16px; }
+
+/* Overlays */
+.overlay{
+  position:fixed; inset:0; display:none; place-items:center; z-index:40;
+  background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.75));
+}
+.panel{
+  width:min(92vw, 720px); max-height:86vh; overflow:auto;
+  background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:22px; backdrop-filter: blur(10px);
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  padding:18px;
+}
+h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
+.sub{ color:var(--muted); margin:0 0 12px; }
+.btn{
+  padding:12px 14px; border-radius:14px; border:0; cursor:pointer; font-weight:800; color:#0b1221;
+  background:linear-gradient(180deg,#93c5fd,#60a5fa);
+}
+.btn.red{ background:linear-gradient(180deg,#fca5a5,#f87171); color:#0b1221; }
+.btn.green{ background:linear-gradient(180deg,#86efac,#22c55e); color:#0b1221; }
+.btn.ghost{ background:transparent; color:#e5e7eb; border:1px solid rgba(255,255,255,.2); }
+
+.offer-list{ display:grid; grid-template-columns: 1fr; gap:10px; margin:14px 0 }
+.offer-card{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:14px;
+  background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+}
+.offer-title{ font-weight:800 }
+.offer-meta{ font-size:12px; color:var(--muted) }
+</style>
+</head>
+<body>
+
+<div class="game-container" id="game">
+  <div class="hud">
+    <div id="score">Score: 0</div>
+    <div class="pill" id="offersPill">🎁 Offers: <span id="offerCount">0</span></div>
+    <div class="hearts" id="hearts"></div>
+  </div>
+
+  <div id="basket"></div>
+
+  <div class="ctrl" id="left-btn">⟵</div>
+  <div class="ctrl" id="right-btn">⟶</div>
+</div>
+
+<div id="flash"></div>
+
+<!-- GAME OVER -->
+<div class="overlay" id="gameOver">
+  <div class="panel">
+    <h1>Game Over</h1>
+    <p class="sub">Final Score: <span id="finalScoreText">0</span></p>
+
+    <h3 style="margin:8px 0 6px">Your Basket</h3>
+    <div class="offer-list" id="offerList"></div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+      <button class="btn green" id="restartBtn">Play Again</button>
+      <button class="btn ghost" id="shareBtn">Share Score</button>
+    </div>
+    <p class="sub" id="redeemNote" style="margin-top:10px"></p>
+  </div>
+</div>
+
+<!-- AUDIO (replace with your files if needed) -->
+<audio id="catch-sound" src="catch.mp3" preload="auto"></audio>
+<audio id="crash-sound" src="crash.mp3" preload="auto"></audio>
+
+<script>
+// ========= ELEMENTS =========
+const gameContainer = document.getElementById('game');
+const basket = document.getElementById('basket');
+const scoreDisplay = document.getElementById('score');
+const heartWrap = document.getElementById('hearts');
+const offerPillCount = document.getElementById('offerCount');
+const leftBtn = document.getElementById('left-btn');
+const rightBtn = document.getElementById('right-btn');
+const catchSound = document.getElementById('catch-sound');
+const crashSound = document.getElementById('crash-sound');
+
+const over = document.getElementById('gameOver');
+const finalScoreText = document.getElementById('finalScoreText');
+const offerListEl = document.getElementById('offerList');
+const restartBtn = document.getElementById('restartBtn');
+const shareBtn = document.getElementById('shareBtn');
+const redeemNote = document.getElementById('redeemNote');
+
+// ========= STATE =========
+let maxLives = 3;
+let lives = maxLives;
+let score = 0;
+let basketX = 0;
+let basketSpeed = 32;
+let gameEnded = false;
+let gamePaused = false;
+let fallInterval = 1200; // will scale with score
+let spawnTimer = null;
+let consecutiveCatches = 0;
+let offerCount = 0;
+let lastRewardStep = 0; // every 25 score
+
+// Offer inventory (localStorage per-ID)
+let userId = null;
+
+// ========= UTILS & FX =========
+const clamp = (x,min,max)=>Math.max(min,Math.min(max,x));
+const vibrate = (ms)=>{ if(navigator.vibrate) try{ navigator.vibrate(ms); }catch{} }
+function sfx(audio, rateMin=0.96, rateMax=1.04){
+  if(!audio) return;
+  audio.currentTime = 0;
+  audio.playbackRate = rateMin + Math.random()*(rateMax-rateMin);
+  audio.play().catch(()=>{});
+}
+function screenShake(){ gameContainer.classList.add('shake'); setTimeout(()=>gameContainer.classList.remove('shake'), 250); }
+function flash(){ const el = document.getElementById('flash'); el.style.opacity='1'; setTimeout(()=> el.style.opacity='0', 180); }
+function pulseBasket(){ basket.classList.add('glow'); setTimeout(()=> basket.classList.remove('glow'), 320); }
+function floatText(text, x, y){
+  const el = document.createElement('div');
+  el.className = 'float-text';
+  el.textContent = text;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 800);
+}
+function burstParticles(x, y, n=12, cls='particle', spread=60){
+  const frag = document.createDocumentFragment();
+  for(let i=0;i<n;i++){
+    const p = document.createElement('div');
+    p.className = cls;
+    const dx = (Math.random() - .5) * spread * 2;
+    const dy = (Math.random() - .2) * spread * 2;
+    p.style.setProperty('--dx', dx+'px');
+    p.style.setProperty('--dy', dy+'px');
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    p.style.zIndex = 9999;
+    frag.appendChild(p);
+    setTimeout(()=> p.remove(), 900);
+  }
+  document.body.appendChild(frag);
+}
+function createBallTrail(x, y){
+  const trail = document.createElement('div');
+  trail.className = 'ball-trail';
+  trail.style.left = x + 'px';
+  trail.style.top = y + 'px';
+  gameContainer.appendChild(trail);
+  setTimeout(()=> trail.remove(), 400);
+}
+function bumpScore(){
+  scoreDisplay.style.transform = 'scale(1.1)';
+  setTimeout(()=> scoreDisplay.style.transform = 'scale(1)', 160);
+}
+
+// ========= ID & REDEEM CONTROL =========
+const REDEEM_LOG_KEY = 'redeem_log_v1'; // { 'YYYY-MM-DD': { '<id>': { at, type, label } } }
+const IST_TZ = 'Asia/Kolkata';
+function getISTDateStr(){
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: IST_TZ, year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(new Date());
+  const o = Object.fromEntries(parts.map(p=>[p.type,p.value]));
+  return `${o.year}-${o.month}-${o.day}`;
+}
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h<<5)-h + s.charCodeAt(i); h|=0; } return String(h); }
+function deviceFingerprint(){
+  const ua=navigator.userAgent||'', lang=navigator.language||'';
+  const scr=(screen.width||0)+'x'+(screen.height||0)+'x'+(screen.colorDepth||0);
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+  return 'fp_'+hashStr([ua,lang,scr,tz].join('|'));
+}
+async function getIP(){
+  try{
+    const cached = sessionStorage.getItem('ip_cache_v1'); if(cached) return cached;
+    const r = await fetch('https://api.ipify.org?format=json', {cache:'no-store'});
+    const j = await r.json(); if(j && j.ip){ sessionStorage.setItem('ip_cache_v1', j.ip); return j.ip; }
+  }catch(e){}
+  return null;
+}
+async function resolveUserId(){
+  // Prefer logged-in email (if your login page stored currentUser.email)
+  try{
+    const cu = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    if (cu && cu.email) return cu.email.toLowerCase();
+  }catch(e){}
+  const ip = await getIP();
+  if (ip) return 'ip_'+ip;
+  return deviceFingerprint();
+}
+function getOffersKey(id){ return id ? `caughtOffers_${id}` : 'caughtOffers_guest'; }
+function readOffers(id){
+  try{ return JSON.parse(localStorage.getItem(getOffersKey(id)) || '[]'); }catch(e){ return []; }
+}
+function writeOffers(id, arr){
+  localStorage.setItem(getOffersKey(id), JSON.stringify(arr));
+}
+function getRedeemLog(){
+  try{ return JSON.parse(localStorage.getItem(REDEEM_LOG_KEY) || '{}'); }catch(e){ return {}; }
+}
+function setRedeemLog(obj){
+  localStorage.setItem(REDEEM_LOG_KEY, JSON.stringify(obj));
+}
+async function isRedeemBlockedToday(id){
+  const today = getISTDateStr();
+  const log = getRedeemLog();
+  return !!(log[today] && log[today][id]);
+}
+async function markRedeemedToday(id, meta){
+  const today = getISTDateStr();
+  const log = getRedeemLog();
+  if(!log[today]) log[today] = {};
+  log[today][id] = { at: Date.now(), id, ...meta };
+  setRedeemLog(log);
+}
+
+// ========= GAME INIT =========
+function updateHeartsUI(){
+  heartWrap.innerHTML = '';
+  for(let i=0;i<lives;i++){
+    const img = document.createElement('img');
+    img.src = 'red heart.png';
+    img.className = 'heart';
+    heartWrap.appendChild(img);
+  }
+}
+function setScore(v){ score = Math.max(0, v|0); scoreDisplay.textContent = 'Score: ' + score; }
+function setOfferCount(v){ offerCount = v|0; offerPillCount.textContent = String(offerCount); }
+
+function startGame(){
+  // position basket center
+  basketX = window.innerWidth/2 - basket.offsetWidth/2;
+  basket.style.left = basketX + 'px';
+
+  // reset state
+  lives = maxLives; updateHeartsUI();
+  setScore(0); setOfferCount(readOffers(userId).length);
+  gameEnded = false; gamePaused = false; consecutiveCatches = 0; lastRewardStep = 0;
+
+  // spawner
+  if (spawnTimer) clearInterval(spawnTimer);
+  spawnTimer = setInterval(spawnTick, fallInterval);
+}
+function endGame(){
+  gameEnded = true; gamePaused = true;
+  if (spawnTimer) clearInterval(spawnTimer);
+  showGameOver();
+}
+
+// ========= MOVEMENT & SPAWN =========
+function choosePath(type){
+  const r = Math.random();
+  if (type==='diamond'){
+    // 50% straight, 35% zigzag, 10% pause zigzag, 5% sine
+    if (r<0.50) return { name:'straight' };
+    if (r<0.85) return { name:'zigzag', speedX: 2 + Math.random()*1.4, changeEvery: 18 + Math.floor(Math.random()*18) };
+    if (r<0.95) return { name:'pause_zigzag', speedX: 2, changeEvery: 22, pauseEvery: 60, pauseFor: 14 };
+    return { name:'sine', amp: 40 + Math.random()*60, period: 72 + Math.random()*60 };
+  }
+  if (type==='bomb') return { name:'straight' }; // fair
+  return { name:'straight' }; // rewards
+}
+function getDiamondSpeed(sc){
+  if (sc < 100){ const t=sc/100; return 1.6 + t*1.8; } // ~1.6 → ~3.4
+  const steps = Math.floor((sc-100)/50);
+  return Math.min(3.4 + steps*0.25, 7);
+}
+function currentDropInterval(){
+  // faster spawns at higher score
+  const min = 700, max = 1300;
+  const t = Math.min(score/200, 1); // 0..1
+  return Math.round(max - (max-min)*t);
+}
+function spawnTick(){
+  if (gamePaused || gameEnded) return;
+
+  // adjust interval progressively
+  const newInt = currentDropInterval();
+  if (newInt !== fallInterval){
+    fallInterval = newInt;
+    clearInterval(spawnTimer);
+    spawnTimer = setInterval(spawnTick, fallInterval);
+  }
+
+  const dropCount = Math.random() < 0.2 ? 2 : 1; // sometimes 2 items
+  const usedX = [];
+  for (let i=0;i<dropCount;i++){
+    let posX; let attempts=0;
+    do { posX = Math.random()*(window.innerWidth - 80); attempts++; }
+    while(usedX.some(x=>Math.abs(x-posX)<100) && attempts<10);
+    usedX.push(posX);
+    createItem(posX);
+  }
+
+  // schedule reward when crossing multiples of 25
+  const step = Math.floor(score/25);
+  if (step>lastRewardStep){
+    lastRewardStep = step;
+    // push one reward guaranteed next tick
+    createItem(Math.random()*(window.innerWidth - 80), /*forceReward*/true);
+  }
+}
+
+function createItem(forcedX=null, forceReward=false){
+  if (gameEnded || gamePaused) return;
+
+  // Decide type
+  let type='diamond', image='basket ball.png';
+  if (forceReward){
+    type = nextRewardType();
+    image = rewardImage(type);
+  } else {
+    const r=Math.random();
+    if (score>10 && r<0.12){ type='bomb'; image='bomb 1.png'; }
+    else if (r<0.16){ // small natural chance of reward
+      type = nextRewardType();
+      image = rewardImage(type);
+    }
+  }
+
+  const item = document.createElement('div');
+  item.className = 'falling-item';
+  item.dataset.type = type;
+  item.style.left = (forcedX!==null ? forcedX : Math.random()*(window.innerWidth-80)) + 'px';
+  item.style.top = (Math.random()*80) + 'px';
+  item.style.backgroundImage = `url('${image}')`;
+  gameContainer.appendChild(item);
+
+  // per-item path state
+  item._path = choosePath(type);
+  item._t = 0; item._dir = Math.random()<0.5 ? -1 : 1; item._baseX = parseFloat(item.style.left);
+
+  // speed
+  let speed = 4;
+  if (type==='diamond') speed = getDiamondSpeed(score);
+  else if (type==='bomb'){
+    // scale a bit with score
+    const ls = Math.min(score, 250);
+    speed = 3 + (ls/250) * 2.5; // 3 → 5.5
+  } else { // rewards slow & fair
+    speed = 4.2;
+  }
+
+  function fall(){
+    if (gameEnded){ item.remove(); return; }
+    if (gamePaused){ requestAnimationFrame(fall); return; }
+
+    let top = parseFloat(item.style.top);
+    let left = parseFloat(item.style.left);
+    const maxLeft = window.innerWidth - item.offsetWidth;
+    let allowY = true;
+
+    // path
+    switch(item._path.name){
+      case 'straight': /* no x change */ break;
+      case 'zigzag':
+        left += item._dir * item._path.speedX;
+        item._t++;
+        if (item._t % item._path.changeEvery === 0) item._dir *= -1;
+        if (left<=0){ left=0; item._dir=1; }
+        if (left>=maxLeft){ left=maxLeft; item._dir=-1; }
+        if (item._t % 3 === 0) createBallTrail(left, top);
+        break;
+      case 'pause_zigzag':
+        item._t++;
+        const inPause = (item._t % item._path.pauseEvery) < item._path.pauseFor;
+        allowY = !inPause;
+        left += item._dir * item._path.speedX;
+        if (item._t % item._path.changeEvery === 0) item._dir *= -1;
+        if (left<=0){ left=0; item._dir=1; }
+        if (left>=maxLeft){ left=maxLeft; item._dir=-1; }
+        if (item._t % 3 === 0) createBallTrail(left, top);
+        break;
+      case 'sine':
+        item._t++;
+        left = item._baseX + (item._path.amp * Math.sin((2*Math.PI*item._t)/item._path.period));
+        left = clamp(left, 0, maxLeft);
+        if (item._t % 3 === 0) createBallTrail(left, top);
+        break;
+    }
+
+    if (allowY) top += speed;
+    item.style.left = left + 'px';
+    item.style.top = top + 'px';
+    item.style.zIndex = '5';
+
+    if (top + item.offsetHeight < window.innerHeight){
+      if (isCaught(item)){
+        handleCatch(item);
+      }else{
+        requestAnimationFrame(fall);
+      }
+    } else {
+      // Missed
+      item.remove();
+      if (type==='diamond'){
+        consecutiveCatches = 0;
+        lives = Math.max(0, lives - 1);
+        updateHeartsUI();
+        if (lives<=0){ endGame(); }
+      }
+    }
+  }
+  requestAnimationFrame(fall);
+}
+
+function isCaught(item){
+  const it = item.getBoundingClientRect();
+  const b = basket.getBoundingClientRect();
+  const verticalOffset = 8, horizontalBuffer = 35;
+  return (
+    it.bottom >= b.top + verticalOffset &&
+    it.right - horizontalBuffer >= b.left &&
+    it.left + horizontalBuffer <= b.right
+  );
+}
+
+// ========= CATCH HANDLERS =========
+function handleCatch(item){
+  const type = item.dataset.type;
+  const b = basket.getBoundingClientRect();
+  const cx = b.left + b.width/2, cy = b.top + 10;
+
+  if (type==='diamond'){
+    setScore(score+1);
+    consecutiveCatches++;
+    sfx(catchSound); bumpScore(); pulseBasket();
+    burstParticles(cx, cy, 12, 'particle', 70);
+    floatText('+1', cx, cy);
+
+    // 5-in-a-row bonus life
+    if (consecutiveCatches===5 && lives < 5){ // cap 5 lives
+      lives++;
+      updateHeartsUI();
+      consecutiveCatches = 0;
+      // celebrate
+      for(let i=0;i<22;i++){ // confetti
+        const c = document.createElement('div'); c.className='confetti';
+        const dx = (Math.random()-.5)*180, dy = (Math.random()-.2)*180;
+        c.style.setProperty('--dx', dx+'px'); c.style.setProperty('--dy', dy+'px');
+        c.style.left = cx+'px'; c.style.top = cy+'px'; c.style.zIndex=9999;
+        document.body.appendChild(c); setTimeout(()=>c.remove(), 900);
+      }
+      floatText('EXTRA LIFE!', cx, cy-16);
+    }
+
+    item.remove();
+  }
+  else if (type==='bomb'){
+    sfx(crashSound); vibrate(120); screenShake(); flash();
+    item.remove();
+    // Bomb ⇒ straight Game Over
+    endGame();
+  }
+  else {
+    // Offer caught ⇒ add to basket (localStorage), no pause
+    sfx(catchSound); pulseBasket();
+    burstParticles(cx, cy, 14, 'particle', 70);
+    const meta = offerMeta(type);
+    addOfferToInventory(meta);
+    setOfferCount(offerCount+1);
+    floatText('OFFER 🎁', cx, cy);
+    item.remove();
+  }
+}
+
+// ========= OFFERS =========
+const REWARD_SEQ = ['pizza','zepto','meesho','job'];
+let rewardIdx = 0;
+function nextRewardType(){ const t = REWARD_SEQ[rewardIdx % REWARD_SEQ.length]; rewardIdx++; return t; }
+function rewardImage(type){
+  if (type==='pizza') return 'pizza.png';
+  if (type==='meesho') return 'meesho voucher.png';
+  if (type==='zepto') return 'zepto coupon.png';
+  if (type==='job') return 'job delivery.png';
+  return 'pizza.png';
+}
+function offerMeta(type){
+  if (type==='pizza') return {type, label:'Pizza Offer', value:'Flat 5% off on your next order!'};
+  if (type==='meesho') return {type, label:'Meesho Discount', value:'Flat 7% off on your next order!'};
+  if (type==='zepto') return {type, label:'Zepto Reward', value:'Flat 10% off on your next order!'};
+  if (type==='job') return {type, label:'Job Hunt Bonus', value:'Get priority access to internships!'};
+  return {type:'offer', label:'Offer', value:'Special deal!'};
+}
+function addOfferToInventory(meta){
+  const arr = readOffers(userId);
+  arr.push({...meta, caughtAt: Date.now(), redeemed:false});
+  writeOffers(userId, arr);
+}
+
+// ========= GAME OVER UI & REDEEM =========
+function showGameOver(){
+  finalScoreText.textContent = score;
+  // build offer list
+  offerListEl.innerHTML = '';
+  const arr = readOffers(userId);
+  if (!arr.length){
+    offerListEl.innerHTML = `<div class="offer-card"><div>No offers yet — catch some in your next run!</div></div>`;
+  } else {
+    arr.forEach((it, idx)=>{
+      const card = document.createElement('div');
+      card.className = 'offer-card';
+      card.innerHTML = `
+        <div>
+          <div class="offer-title">${it.label || 'Offer'}</div>
+          <div class="offer-meta">${it.value || ''}</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center">
+          <button class="btn green" data-i="${idx}">Redeem</button>
+        </div>
+      `;
+      offerListEl.appendChild(card);
+    });
+  }
+
+  // one-per-day-per-ID rule
+  isRedeemBlockedToday(userId).then(blocked=>{
+    redeemNote.textContent = blocked
+      ? 'Aaj ke liye redeem ho chuka hai (same ID). Kal dobara redeem kar sakte ho.'
+      : 'Note: Aaj ke din 1 hi offer redeem hoga (per ID).';
+
+    // toggle buttons
+    [...offerListEl.querySelectorAll('button')].forEach(btn=>{
+      btn.disabled = blocked; btn.style.opacity = blocked ? '0.6' : '1';
+      btn.addEventListener('click', async ()=>{
+        const i = parseInt(btn.getAttribute('data-i'),10);
+        const list = readOffers(userId);
+        const sel = list[i]; if(!sel) return;
+
+        if (await isRedeemBlockedToday(userId)){
+          alert('Aaj ke liye redeem ho chuka hai. Kal try karein.');
+          // disable all
+          [...offerListEl.querySelectorAll('button')].forEach(b=>{ b.disabled=true; b.style.opacity='0.6'; });
+          redeemNote.textContent = 'Aaj ke liye redeem ho chuka hai (same ID). Kal dobara redeem kar sakte ho.';
+          return;
+        }
+        // mark redeemed + day lock
+        await markRedeemedToday(userId, { type: sel.type, label: sel.label });
+        list[i] = {...sel, redeemed:true, redeemedAt: Date.now()};
+        writeOffers(userId, list);
+
+        alert('Redeemed! Aaj aur redeem nahi hoga.');
+        // disable all now
+        [...offerListEl.querySelectorAll('button')].forEach(b=>{ b.disabled=true; b.style.opacity='0.6'; });
+        redeemNote.textContent = 'Aaj ke liye redeem ho chuka hai (same ID). Kal dobara redeem kar sakte ho.';
+      }, {once:true});
+    });
+  });
+
+  over.style.display = 'grid';
+}
+
+// ========= INPUT =========
+function move(dir){
+  if (gamePaused || gameEnded) return;
+  const containerWidth = gameContainer.clientWidth;
+  const bw = basket.offsetWidth;
+  if (dir==='left'){ basketX = Math.max(0, basketX - basketSpeed); }
+  else { basketX = Math.min(containerWidth - bw, basketX + basketSpeed); }
+  basket.style.left = basketX + 'px';
+}
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowLeft') move('left');
+  else if (e.key==='ArrowRight') move('right');
+});
+['touchstart','click'].forEach(ev=>{
+  leftBtn.addEventListener(ev, ()=> move('left'));
+  rightBtn.addEventListener(ev, ()=> move('right'));
+});
+
+// ========= BUTTONS =========
+restartBtn.addEventListener('click', ()=>{
+  over.style.display = 'none';
+  // reset offers counter (not clearing inventory; persists)
+  setOfferCount(readOffers(userId).length);
+  startGame();
+});
+
+shareBtn.addEventListener('click', ()=>{
+  const txt = `I scored ${score} in CHACH — Catch the Offer! 🎮`;
+  if (navigator.share){
+    navigator.share({text:txt}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(txt).then(()=> alert('Score copied! Share anywhere.'));
+  }
+});
+
+// ========= RESIZE =========
+window.addEventListener('resize', ()=>{
+  if (gameEnded || gamePaused) return;
+  basketX = Math.min(window.innerWidth - basket.offsetWidth, basketX);
+  basket.style.left = basketX + 'px';
+});
+
+// ========= BOOT =========
+(async function boot(){
+  userId = await resolveUserId(); // email -> IP -> device fp
+  setOfferCount(readOffers(userId).length);
+  startGame();
+})();
+</script>
+</body>
+</html>
