@@ -388,7 +388,7 @@
   position: absolute;
   top: 20px;
   left: 20px;
-  color: white;
+  color: black;
 
   /* Add this to stretch taller and shrink width */
   transform: scaleY(1.4) scaleX(0.8);
@@ -507,18 +507,6 @@
   }
 }
 
-.ball-trail {
-  position: absolute;
-  width: 60px;
-  height: 60px;
-  background-image: url('basket ball.png'); /* Use the same ball image or a glowing version */
-  background-size: cover;
-  background-position: center;
-  opacity: 0.6;
-  pointer-events: none;
-  z-index: 4;
- animation: ballTrailFade 0.4s ease-out forwards;
 
-}
 
 
