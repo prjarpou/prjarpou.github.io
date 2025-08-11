@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catch the Offer – FAQ</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&display=swap');
+
+    body {
+      font-family: 'Baloo 2', cursive;
+      background: url('faq bg img.png') no-repeat center center fixed;
+      background-size: cover;
+      padding: 80px 20px 40px 20px;
+      color: whitesmoke; /* ✅ All text in whitesmoke */
+      font-weight: bold; /* ✅ Bold everywhere */
+    }
+h1 {
+  text-align: center;
+  color: whitesmoke;
+  font-size: 2.5em;
+  margin-top: 100px; /* ⬅ Push heading down */
+  margin-bottom: 30px; /* normal gap below heading */
+  text-shadow: 1px 1px 2px #000;
+}
+
+.faq-container {
+  max-width: 750px;
+  margin: 0 auto; /* stays in same place */
+}
+
+
+    .faq-item {
+      background: transparent;
+      border: 2px solid #ffaa00;
+      box-shadow: 0 0 10px #ff4d00, 0 0 10px #ff4d00bb, 0 0 20px #ffaa00;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      transition: 0.3s ease;
+    }
+
+    .faq-item:hover {
+      transform: scale(1.01);
+      box-shadow: 0 0 10px #ff4d00, 0 0 10px #ff4d00bb, 0 0 20px #ffaa00;
+    }
+
+    .faq-question {
+      padding: 18px 24px;
+      font-weight: bold;
+      cursor: pointer;
+      background: transparent;
+      color: whitesmoke; /* ✅ */
+      font-size: 1.1em;
+      letter-spacing: 0.5px;
+      text-align: left;
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 20px 24px;
+      background: transparent;
+      font-size: 1.05em;
+      color: whitesmoke; /* ✅ */
+      line-height: 1.6;
+      border-top: 1px solid rgba(255, 170, 0, 0.4);
+      text-align: justify;
+    }
+
+    .faq-item.active .faq-answer {
+      display: block;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    ul li {
+      margin-bottom: 8px;
+      text-align: justify;
+      color: whitesmoke; /* ✅ */
+    }
+</style>
+
+</head>
+<body>
+
+  <h1>FAQ</h1>
+
+  <div class="faq-container">
+
+    <div class="faq-item">
+      <div class="faq-question">How do I play Catch the Offer?</div>
+      <div class="faq-answer">
+        Move your basket to catch falling balls and rewards. Be careful — if you catch a bomb, your game will end instantly! Offers and balls drop separately — so keep your eyes sharp!
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">What are the game rules?</div>
+      <div class="faq-answer">
+        <ul>
+          <li>Use the basket to catch falling balls and rewards.</li>
+          <li>If a bomb is caught, the game ends immediately.</li>
+          <li>Each missed ball reduces 1 life.</li>
+          <li>You have a maximum of 3 lives.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Can I restore lives?</div>
+      <div class="faq-answer">
+        Yes! If you catch 5 balls in a row without missing, you’ll regain 1 lost life (only if you're below 3).  
+        However, if even 1 ball is missed during those 5, no life will be restored.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">How does offer redemption work?</div>
+      <div class="faq-answer">
+        You can redeem only 1 offer every 24 hours. Once redeemed, your cart will reset and you must play again to earn new offers.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">What happens when the cart resets?</div>
+      <div class="faq-answer">
+        After 24 hours, your cart will clear automatically. To collect new rewards, play again and catch more offers in the game.
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const faqItems = document.querySelectorAll(".faq-item");
+
+    faqItems.forEach(item => {
+      const question = item.querySelector(".faq-question");
+      question.addEventListener("click", () => {
+        faqItems.forEach(el => {
+          if (el !== item) el.classList.remove("active");
+        });
+        item.classList.toggle("active");
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Catch the Offer Game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"> 
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Baloo 2', cursive;
+      overflow: hidden;
+    }
+
+    body {
+      background-size: cover;
+      color: #fff1cc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+
+    /* 🎥 Background Video */
+    #bg-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .header-buttons {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      display: flex;
+      gap: 15px;
+      z-index: 20;
+    }
+
+    .header-buttons img {
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      border-radius: 50%;
+      padding: 6px;
+      transition: transform 0.3s;
+      border: 4px solid #ffaa00;
+      box-shadow: 0 0 10px #ff4d00, 0 0 10px #ff4d00bb, 0 0 20px #ffaa00;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .header-buttons img:hover { transform: scale(1.15); }
+
+    .home-container {
+      background: transparent;
+      padding: 40px 30px;
+      border-radius: 20px;
+      border: 4px solid #ffaa00;
+      box-shadow: 0 0 10px #ff4d00, 0 0 10px #ff4d00bb, 0 0 20px #ffaa00;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      z-index: 5;
+    }
+
+    .game-title {
+      font-size: 36px;
+      color: #ffe783;
+      margin-bottom: 30px;
+      text-shadow: 0 0 5px #000;
+    }
+
+    .start-btn {
+      background: #ff0000ba;
+      color: #fff;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 14px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      margin-bottom: 25px;
+    }
+
+    .start-btn:hover { background: #FF3333; animation: pulse 0.6s ease-in-out; }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .score-text { font-size: 16px; color: #fff3b0; margin-bottom: 12px; }
+
+    .how-to {
+      font-size: 20px;
+      color: #ffe678;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .how-to:hover { text-shadow: 0 0 5px #ffaa00; }
+
+    .hidden { display: none; }
+
+    #payment-popup {
+      background: white;
+      border: 2px solid #888;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 15px #444;
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+    }
+
+    /* Popups */
+    #cart-popup, #account-box {
+      position: fixed;
+      top: 20%;
+      right: 20px;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      width: 280px;
+      max-height: 320px;
+      box-shadow: 0 0 15px #ffff00;
+      z-index: 100;
+    }
+
+    #cart-popup h3, #account-box h3 {
+      margin-bottom: 10px;
+      border-bottom: 1px solid #aaa;
+      padding-bottom: 6px;
+    }
+
+    #cart-popup ul {
+      list-style: none;
+      padding: 0;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    #cart-popup li { margin-bottom: 6px; }
+
+    #cart-popup button, #account-box button {
+      margin-top: 10px;
+      background: #ff0000ba;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .redeem-btn {
+      margin-left: 10px;
+      padding: 3px 8px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .redeem-btn:hover { background-color: #45a049; }
+  </style>
+</head>
+<body>
+  <video autoplay muted loop playsinline id="bg-video">
+    <source src="vd 1.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="home-container">
+    <h1 class="game-title" id="welcome-title">Welcome, Player! Catch The Ball!</h1>
+    <a href="game.html">
+      <button class="start-btn" onclick="startGame()">START GAME</button>
+    </a>
+  </div>
+
+  <!-- Header Buttons -->
+  <div class="header-buttons">
+    <div style="text-align: center;">
+      <img src="user.png" alt="Account" onclick="showAccount()" title="Account">
+    </div>
+    <div style="text-align: center;">
+      <a href="faq.html" title="Go to FAQ Page">
+        <img src="FAQ.png" alt="FAQ" style="cursor: pointer;">
+      </a>
+    </div>
+    <div style="text-align: center;">
+      <img src="new cart.png" alt="Cart" onclick="toggleCart()" title="Cart">
+    </div>
+  </div>
+
+  <!-- Cart Popup -->
+  <div id="cart-popup">
+    <h3>Cart Items</h3>
+    <ul id="cart-list"></ul>
+    <button onclick="closeCart()">Close</button>
+  </div>
+
+  <!-- Account Popup -->
+  <div id="account-box">
+    <h3>User Details</h3>
+    <p id="account-details"></p>
+    <button onclick="closeAccount()">Close</button>
+  </div>
+
+<script>
+  // 🛡️ Redirect if user not logged in
+  const storedData = JSON.parse(localStorage.getItem("currentUser"));
+  if (!storedData || !storedData.username || !storedData.email) {
+    window.location.href = "login.html";
+  }
+
+  const userData = storedData;
+  const email = userData?.email || "";
+
+  // Keys must be strings; use template literals
+  const rewardKey = `caughtOffers_${email}`;
+  const timeKey = `rewardStartTime_${email}`;
+
+  // ⏳ Reset logic: Clear cart after 2 minutes if expired on page load
+  (function resetCartIfExpired() {
+    const rewardTime = localStorage.getItem(timeKey);
+    const now = Date.now();
+    if (rewardTime && now - parseInt(rewardTime, 10) > 2 * 60 * 1000) {
+      localStorage.removeItem(rewardKey);
+      localStorage.removeItem(timeKey);
+      console.log("Cart reset after 2 minutes.");
+    }
+  })();
+
+  function showAccount() {
+    document.getElementById("cart-popup").style.display = "none";
+    const box = document.getElementById("account-box");
+    const details = document.getElementById("account-details");
+    details.innerHTML = `Name: ${userData.username}<br>Email: ${userData.email}`;
+    box.style.display = "block";
+  }
+
+  function closeAccount() {
+    document.getElementById("account-box").style.display = "none";
+  }
+
+  function toggleCart() {
+    document.getElementById("account-box").style.display = "none";
+    const popup = document.getElementById("cart-popup");
+    const list = document.getElementById("cart-list");
+    list.innerHTML = "";
+
+    const rewardTime = localStorage.getItem(timeKey);
+    if (rewardTime && Date.now() - parseInt(rewardTime, 10) > 2 * 60 * 1000) {
+      localStorage.removeItem(rewardKey);
+      localStorage.removeItem(timeKey);
+      list.innerHTML = "<li>Your cart is empty!</li>";
+      popup.style.display = "block";
+      return;
+    }
+
+    const caughtOffers = JSON.parse(localStorage.getItem(rewardKey) || "[]");
+
+    if (caughtOffers.length === 0) {
+      list.innerHTML = "<li>Your cart is empty!</li>";
+    } else {
+      const alreadyRedeemed = caughtOffers.some(offer => offer.redeemed);
+
+      caughtOffers.forEach((item, index) => {
+        const li = document.createElement("li");
+
+        let buttonHTML = "";
+        if (!alreadyRedeemed) {
+          buttonHTML =
+            `<button class="redeem-btn" onclick="redeemOffer('${item.type}', ${index})">Redeem</button>`;
+        } else if (item.redeemed) {
+          buttonHTML =
+            `<button class="redeem-btn" disabled style="background:#999;cursor:default;">Redeemed</button>`;
+        }
+
+        li.innerHTML = `${index + 1}. ${item.label} - ${item.value || ""} ${buttonHTML}`;
+        list.appendChild(li);
+      });
+
+      // 🔒 Timer below list
+      if (rewardTime) {
+        const countdown = document.createElement("li");
+        countdown.style.marginTop = "10px";
+        countdown.style.color = "orange";
+        countdown.style.fontWeight = "bold";
+        countdown.id = "countdown-timer";
+        countdown.innerHTML = "&#128274; Cart resets in: --";
+        list.appendChild(countdown);
+        startCountdownTimer(parseInt(rewardTime, 10));
+      }
+    }
+
+    popup.style.display = "block";
+  }
+
+  function closeCart() {
+    document.getElementById("cart-popup").style.display = "none";
+  }
+
+  let countdownInterval = null;
+
+  function startCountdownTimer(startTime) {
+    const timerEl = document.getElementById("countdown-timer");
+    if (!timerEl) return;
+
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    function updateTimer() {
+      const now = Date.now();
+      const elapsed = now - startTime;
+      const remaining = 2 * 60 * 1000 - elapsed;
+
+      if (remaining <= 0) {
+        timerEl.innerHTML = "&#128274; <span style=\"color:red;\">Cart locked. Please refresh.</span>";
+        localStorage.removeItem(rewardKey);
+        localStorage.removeItem(timeKey);
+        clearInterval(countdownInterval);
+        return;
+      }
+
+      const mins = Math.floor(remaining / (1000 * 60));
+      const secs = Math.floor((remaining % (1000 * 60)) / 1000);
+      timerEl.innerHTML = `&#128274; Cart resets in: <span style="color:orange;">${mins}m ${secs}s</span>`;
+    }
+
+    updateTimer();
+    countdownInterval = setInterval(updateTimer, 1000);
+  }
+
+  // 🎯 Catch reward logic (defensive: only touch boxes if present)
+  function handleRewardCatch(type, currentLevel) {
+    let caught = JSON.parse(localStorage.getItem(rewardKey) || "[]");
+
+    const showBox = (id) => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "flex";
+    };
+
+    if (type === 'pizza') {
+      caught.push({ type: "dominos", label: "Dominos Reward", value: "5% OFF" });
+      showBox("pizzaRewardBox");
+    } else if (type === 'meesho') {
+      caught.push({ type: "meesho", label: "Meesho Trend Offer", value: "7% OFF" });
+      showBox("meeshoRewardBox");
+    } else if (type === 'zepto') {
+      caught.push({ type: "zepto", label: "Zepto Grocery Deal", value: "10% OFF" });
+      showBox("zeptoRewardBox");
+    } else if (type === 'job') {
+      caught.push({ type: "job", label: "Career Boost Deal", value: "Premium Offer" });
+      if (currentLevel === 11) {
+        window.gameEnded = true;
+        const congrats = document.getElementById("finalCongratsScreen");
+        if (congrats) congrats.style.display = "flex";
+      } else {
+        showBox("jobRewardBox");
+      }
+    }
+
+    localStorage.setItem(rewardKey, JSON.stringify(caught));
+  }
+
+  // ✅ Redeem logic — starts timer to clear cart after 2 mins
+  function redeemOffer(type, index) {
+    let caughtOffers = JSON.parse(localStorage.getItem(rewardKey) || "[]");
+
+    if (!caughtOffers[index]) return;
+    caughtOffers[index].redeemed = true;
+    localStorage.setItem(rewardKey, JSON.stringify(caughtOffers));
+
+    const now = Date.now();
+    localStorage.setItem(timeKey, now.toString());
+
+    alert(`You redeemed the ${type.toUpperCase()} offer!`);
+
+    // Update buttons in the list
+    const allButtons = document.querySelectorAll('#cart-list button');
+    allButtons.forEach((btn, i) => {
+      if (i !== index) {
+        btn.remove();
+      } else {
+        btn.disabled = true;
+        btn.textContent = "Redeemed";
+        btn.style.backgroundColor = "#999";
+        btn.style.cursor = "default";
+      }
+    });
+
+    // Start/refresh the countdown display
+    const list = document.getElementById("cart-list");
+    if (list && !document.getElementById("countdown-timer")) {
+      const countdown = document.createElement("li");
+      countdown.style.marginTop = "10px";
+      countdown.style.color = "orange";
+      countdown.style.fontWeight = "bold";
+      countdown.id = "countdown-timer";
+      list.appendChild(countdown);
+    }
+    startCountdownTimer(now);
+
+    // Auto-clear after 2 minutes
+    setTimeout(() => {
+      localStorage.removeItem(rewardKey);
+      localStorage.removeItem(timeKey);
+      const listEl = document.getElementById("cart-list");
+      if (listEl) {
+        listEl.innerHTML = "<li>&#128274; Cart auto-cleared after 2 minutes.</li>";
+      }
+    }, 2 * 60 * 1000);
+  }
+
+  // Personalize welcome message
+  const welcomeTitle = document.getElementById("welcome-title");
+  if (welcomeTitle && userData?.username) {
+    welcomeTitle.textContent = `Welcome, ${userData.username}! Catch The Ball!`;
+  }
+
+  // Define startGame to avoid reference error
+  function startGame() {
+    // If you want to do any pre-navigation logic, add here.
+    // Currently navigation happens via the <a href="game.html"> wrapper.
+    return true;
+  }
+</script>
+</body>
+</html>

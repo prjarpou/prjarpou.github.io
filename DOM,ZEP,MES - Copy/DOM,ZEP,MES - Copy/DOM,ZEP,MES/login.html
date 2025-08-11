@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Login - Catch the Offer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"> 
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    background: url('background.png') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Baloo 2', cursive;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 20px;
+  }
+
+  .login-container {
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 30px;
+  }
+
+  .title {
+    font-size: 9vw;
+    font-weight: bold;
+    color:#f5d6a0;
+    text-shadow: 2px 2px 4px #000;
+    margin-bottom: 20px;
+  }
+
+  .hoop-image {
+    width: 60%;
+    max-width: 200px;
+    margin: 0 auto 30px;
+    display: block;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  .input-box {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 30px; /* Rounded rectangle */
+    font-size: 18px;
+    font-weight: 600;
+    background: #f5d6a0;
+    color: #2b1a0f;
+  }
+
+  .input-box::placeholder {
+    color: #8a6b4f;
+  }
+
+  .login-button {
+    padding: 14px;
+    background: #ff0000ba;
+    border: none;
+    color: #fff;
+    border-radius: 30px; /* Rounded rectangle */
+    cursor: pointer;
+    font-size: 18px;
+    width: 100%;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  .login-button:hover {
+    background: #FF3333;
+    animation: pulse 0.6s ease-in-out;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  .signup-text {
+    margin-top: 12px;
+    color: #f5d6a0;
+    font-size: 14px;
+  }
+
+  #errorMsg {
+    color: #f5d6a0;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  @media (min-width: 768px) {
+    .title {
+      font-size: 48px;
+    }
+  }
+
+  .input-box.error {
+    outline: none;
+    border: 2px solid #ff0000;
+    box-shadow:
+      0 0 10px #ff0000,
+      0 0 20px #ff0000,
+      0 0 30px #ff0000,
+      0 0 40px #ff0000;
+    background-color: #ffe0e0;
+    color: #660000;
+  }
+</style>
+
+</head>
+<body>
+  <div class="login-container">
+    <div class="title">LOGIN TO PLAY</div>
+    <img src="center img.png" alt="Basketball Hoop" class="hoop-image" />
+   <input type="text" id="username" class="input-box" placeholder="Enter Username" autocomplete="off">
+<input type="email" id="email" class="input-box" placeholder="Enter Your Gmail" autocomplete="off" required />
+<div id="errorMsg"></div> <!-- Moved this line -->
+<button class="login-button" id="loginBtn">Login</button>
+<div class="signup-text">Not registered? Just type and Login!</div>
+
+  </div>
+
+  <script>
+document.getElementById("loginBtn").addEventListener("click", () => {
+  const usernameInput = document.getElementById("username");
+  const emailInput = document.getElementById("email");
+  const username = usernameInput.value.trim();
+  const email = emailInput.value.trim();
+  const errorMsg = document.getElementById("errorMsg");
+
+  // Reset error display
+  errorMsg.textContent = "";
+  usernameInput.classList.remove("error");
+  emailInput.classList.remove("error");
+
+  // ✅ Check for both fields empty
+  if (!username || !email) {
+    errorMsg.textContent = " Please enter both fields.";
+    if (!username) usernameInput.classList.add("error"); // <-- added this line
+    if (!email) emailInput.classList.add("error");
+    return;
+  }
+
+  // ✅ Gmail validation
+  const emailRegex = /^[a-zA-Z0-9.]+@gmail\.com$/;
+  if (!emailRegex.test(email)) {
+    errorMsg.textContent = "Enter a valid Gmail address (e.g. username@gmail.com)";
+    emailInput.classList.add("error");
+    return;
+  }
+
+  // ✅ User existence check
+  const users = JSON.parse(localStorage.getItem("gameUsers")) || [];
+  const existingUser = users.find(user => user.email === email);
+
+  if (existingUser && existingUser.username !== username) {
+    errorMsg.textContent = " This Gmail is already registered.";
+    emailInput.classList.add("error");
+    return;
+  }
+
+  // ✅ Save user if new
+  if (!existingUser) {
+    users.push({ username, email });
+    localStorage.setItem("gameUsers", JSON.stringify(users));
+  }
+
+  // ✅ Set current user and redirect
+  localStorage.setItem("currentUser", JSON.stringify({ username, email }));
+  window.location.href = "home.html";
+});
+
+
+  </script>
+</body>
+</html>
