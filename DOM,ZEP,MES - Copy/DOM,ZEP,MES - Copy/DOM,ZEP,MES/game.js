@@ -245,15 +245,17 @@ else if (type === 'bomb') {
 // Diamonds: constant speed before 100, increase after
 else if (type === 'diamond') {
   if (score < 100) {
-    // Slower early game: start at 3, increase to ~5 by score 100
-    speed = 3 + (score / 100) * 2; 
+    // Much slower early game: ~1.8 at 0 → ~4.0 at 100
+    const t = score / 100;
+    speed = 1.8 + t * 2.2;
   } else {
-    // After 100, gradually increase speed every 50 points
-    const steps = Math.floor((score - 100) / 50);
-    speed = 5 + steps * 0.7; // faster after each step
-    speed = Math.min(speed, 12); // safety cap
+    // After 100, tiny bumps every 50 points
+    const steps = Math.floor((score - 100) / 50); // 0:100–149, 1:150–199, ...
+    speed = 4.0 + steps * 0.3;                   // little-by-little increase
+    speed = Math.min(speed, 8);                   // safety cap
   }
 }
+
 
 
 // ZIG-ZAG CONFIG FOR DIAMOND
@@ -437,5 +439,6 @@ window.addEventListener('resize', () => {
     basket.style.left = basketX + 'px';
   }
 });
+
 
 
