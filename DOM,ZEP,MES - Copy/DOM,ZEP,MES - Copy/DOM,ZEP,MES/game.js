@@ -93,6 +93,18 @@ function move(direction) {
   }
   basket.style.left = basketX + 'px';
 }
+function getBombSpeed(score) {
+  // 0–100 ⇒ gradually slower (easier)
+  if (score < 100) {
+    // from ~2.2 down to ~1.6 smoothly
+    return Math.max(1.4, 2.2 - 0.006 * score);
+  }
+
+  // ≥100 ⇒ step-up at 100, 150, then every +50
+  const steps = Math.floor((score - 100) / 50); // 0 for 100–149, 1 for 150–199, 2 for 200–249, ...
+  const speed = 3.0 + steps * 0.4;              // “a little” faster each step
+  return Math.min(speed, 8);                     // safety cap
+}
 
 function createItem(forcedX = null) {
   const loopedScore = score % 250;
@@ -416,3 +428,4 @@ window.addEventListener('resize', () => {
     basket.style.left = basketX + 'px';
   }
 });
+
