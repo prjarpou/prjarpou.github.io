@@ -115,14 +115,66 @@ body{
 }
 
 /* On-screen controls (mobile) */
-.ctrl{
-  position:absolute; bottom:20px; width:64px; height:64px; border-radius:50%;
-  display:grid; place-items:center; font-size:28px; font-weight:800; color:#0b1221;
-  background:linear-gradient(180deg,#93c5fd,#60a5fa); box-shadow: 0 12px 30px rgba(96,165,250,.35);
-  user-select:none; -webkit-user-select:none; touch-action:manipulation; z-index:30;
+/* On-screen controls (mobile) */
+.ctrl {
+  position: absolute;
+  bottom: 10vh;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #0b1221;
+  background: linear-gradient(180deg, #5eead4, #2dd4bf); /* Cyan glow base */
+  box-shadow: 0 12px 30px rgba(45, 212, 191, 0.4);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  z-index: 30;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
-#left-btn{ left:16px; }
-#right-btn{ right:16px; }
+
+.ctrl:active {
+  transform: scale(0.92);
+  box-shadow: 0 0 25px rgba(34, 211, 238, 0.9), 0 0 45px rgba(34, 211, 238, 0.6);
+  background: linear-gradient(180deg, #2dd4bf, #0d9488);
+}
+
+
+/* Optional ripple animation */
+.ctrl::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  width: 200%;
+  height: 200%;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.4);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.4s ease, opacity 0.6s ease;
+}
+
+.ctrl:active::after {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0;
+}
+
+#left-btn { left: 16px; }
+#right-btn { right: 16px; }
+
+
+
+/* 📱 Adjust position for smaller screens */
+@media (max-width: 480px) {
+  .ctrl {
+    bottom: 12vh; /* a bit closer to basket */
+  }
+}
+
 
 /* Overlays */
 .overlay{
@@ -153,43 +205,6 @@ h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
 .offer-title{ font-weight:800 }
 .offer-meta{ font-size:12px; color:var(--muted) }
 </style>
-</head>
-<body>
-
-<div class="game-container" id="game">
-  <div class="hud">
-    <div id="score">Score: 0</div>
-    <div class="pill" id="offersPill">🎁 Offers: <span id="offerCount">0</span></div>
-    <div class="hearts" id="hearts"></div>
-  </div>
-
-  <div id="basket"></div>
-
-  <div class="ctrl" id="left-btn">⟵</div>
-  <div class="ctrl" id="right-btn">⟶</div>
-</div>
-
-<div id="flash"></div>
-
-<!-- GAME OVER -->
-<div class="overlay" id="gameOver">
-  <div class="panel">
-    <h1>Game Over</h1>
-    <p class="sub">Final Score: <span id="finalScoreText">0</span></p>
-
-    <h3 style="margin:8px 0 6px">Your Cart</h3>
-    <div class="offer-list" id="offerList"></div>
-
-    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
-      <button class="btn green" id="restartBtn">Play Again</button>
-      <button class="btn green" id="homeBtn">Home</button>
-
-<script>
-document.getElementById('homeBtn').addEventListener('click', function() {
-    window.location.href = 'home.html';
-});
-
-
 </head>
 <body>
 
@@ -790,5 +805,3 @@ window.addEventListener('resize', ()=>{
 </script>
 </body>
 </html>
-
-
