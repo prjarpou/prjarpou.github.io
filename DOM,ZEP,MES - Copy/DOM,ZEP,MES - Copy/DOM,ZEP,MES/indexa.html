@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Login - Catch the Offer</title>
 <title>CHACH — Catch the Offer</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&display=swap" rel="stylesheet">
 
@@ -24,7 +25,7 @@ body{
 /* GAME AREA */
 .game-container{
   position:relative; width:100vw; height:100vh; overflow:hidden;
-  background: url('bg img.png') no-repeat center center/cover;
+  background: url('image bg.png') no-repeat center center/cover;
 }
 .hud{
   position:absolute; left:0; right:0; top:0; display:flex; align-items:center; justify-content:space-between;
@@ -126,22 +127,35 @@ body{
   place-items: center;
   font-size: 28px;
   font-weight: 800;
-  color: #0b1221;
-  background: linear-gradient(180deg, #5eead4, #2dd4bf); /* Cyan glow base */
-  box-shadow: 0 12px 30px rgba(45, 212, 191, 0.4);
+  color: transparent; /* hide text since we use images */
+  background: none;   /* remove previous gradient background */
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
   z-index: 30;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
+  overflow: hidden;
 }
 
+/* Add the left/right images */
+#left-btn {
+  left: 16px;
+  background: url('left.png') no-repeat center/contain;
+}
+
+#right-btn {
+  right: 16px;
+  background: url('right.png') no-repeat center/contain;
+}
+
+/* When pressed/touched: glow effect */
 .ctrl:active {
-  transform: scale(0.92);
-  box-shadow: 0 0 25px rgba(34, 211, 238, 0.9), 0 0 45px rgba(34, 211, 238, 0.6);
-  background: linear-gradient(180deg, #2dd4bf, #0d9488);
+  transform: scale(0.9);
+  box-shadow: 
+    0 0 15px #06b6d4,
+    0 0 30px #06b6d4,
+    0 0 45px #06b6d4;
 }
-
 
 /* Optional ripple animation */
 .ctrl::after {
@@ -162,9 +176,16 @@ body{
   transform: translate(-50%, -50%) scale(1);
   opacity: 0;
 }
+/* Glow animation */
+.ctrl.glow-effect {
+  box-shadow:
+    0 0 15px #06b6d4,
+    0 0 30px #06b6d4,
+    0 0 45px #06b6d4;
+  transform: scale(0.95);
+  transition: box-shadow 0.25s ease, transform 0.15s ease;
+}
 
-#left-btn { left: 16px; }
-#right-btn { right: 16px; }
 
 
 
@@ -501,7 +522,7 @@ function createItem(forcedX=null, forceReward=false){
   if (gameEnded || gamePaused) return;
 
   // Decide type
-  let type='diamond', image='basket ball.png';
+  let type='diamond', image='ball.png';
   if (forceReward){
     type = nextRewardType();
     image = rewardImage(type);
@@ -802,6 +823,20 @@ window.addEventListener('resize', ()=>{
   setOfferCount(readOffers(userId).length);
   startGame();
 })();
+const buttons = document.querySelectorAll('.ctrl');
+
+buttons.forEach(btn => {
+  btn.addEventListener('touchstart', () => triggerGlow(btn));
+  btn.addEventListener('mousedown', () => triggerGlow(btn)); // for desktop clicks
+});
+
+function triggerGlow(button) {
+  button.classList.add('glow-effect');
+  setTimeout(() => {
+    button.classList.remove('glow-effect');
+  }, 250); // glow duration
+}
+
 </script>
 </body>
 </html>
