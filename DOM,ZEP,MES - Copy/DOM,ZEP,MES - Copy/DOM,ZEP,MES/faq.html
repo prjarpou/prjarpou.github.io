@@ -2,84 +2,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Login - Catch the Offer</title>
   <title>Catch the Offer – FAQ</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500&display=swap');
 
-    body {
-      font-family: 'Baloo 2', cursive;
-      background: url('faq bg img.png') no-repeat center center fixed;
-      background-size: cover;
-      padding: 80px 20px 40px 20px;
-      color: whitesmoke; /* ✅ All text in whitesmoke */
-      font-weight: bold; /* ✅ Bold everywhere */
-    }
+body {
+  font-family: 'Baloo 2', cursive;
+  background: url('faq bg img.png') no-repeat center center fixed;
+  background-size: cover;
+  padding: 80px 20px 40px 20px;
+  color: whitesmoke;
+  font-weight: bold;
+  text-shadow: 
+    -0.8px -0.8px 0 #000,  
+     0.8px -0.8px 0 #000,
+    -0.8px  0.8px 0 #000,
+     0.8px  0.8px 0 #000; /* subtle black border */
+}
+
 h1 {
   text-align: center;
   color: whitesmoke;
   font-size: 2.5em;
-  margin-top: 100px; /* ⬅ Push heading down */
-  margin-bottom: 30px; /* normal gap below heading */
-  text-shadow: 1px 1px 2px #000;
+  margin-top: 100px;
+  margin-bottom: 30px;
+  text-shadow: 
+    -0.8px -0.8px 0 #000,  
+     0.8px -0.8px 0 #000,
+    -0.8px  0.8px 0 #000,
+     0.8px  0.8px 0 #000,
+     1px 1px 3px #000; /* subtle glow + thin border */
 }
 
 .faq-container {
   max-width: 750px;
-  margin: 0 auto; /* stays in same place */
+  margin: 0 auto;
 }
 
+.faq-item {
+  background: transparent;
+  border: 2px solid #ffaa00;
+  box-shadow: 0 0 10px #ff4d00, 0 0 10px #ff4d00bb, 0 0 20px #ffaa00;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: 0.3s ease;
+}
 
-    .faq-item {
-      background: transparent;
-      border: 2px solid #ffaa00;
-      box-shadow: 0 0 10px #ff4d00, 0 0 10px #ff4d00bb, 0 0 20px #ffaa00;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      overflow: hidden;
-      transition: 0.3s ease;
-    }
+.faq-item:hover {
+  transform: scale(1.01);
+  box-shadow: 0 0 10px #ff4d00, 0 0 10px #ff4d00bb, 0 0 20px #ffaa00;
+}
 
-    .faq-item:hover {
-      transform: scale(1.01);
-      box-shadow: 0 0 10px #ff4d00, 0 0 10px #ff4d00bb, 0 0 20px #ffaa00;
-    }
+.faq-question {
+  padding: 18px 24px;
+  font-weight: bold;
+  cursor: pointer;
+  background: transparent;
+  color: whitesmoke;
+  font-size: 1.1em;
+  letter-spacing: 0.5px;
+  text-align: left;
+  text-shadow: 
+    -0.8px -0.8px 0 #000,  
+     0.8px -0.8px 0 #000,
+    -0.8px  0.8px 0 #000,
+     0.8px  0.8px 0 #000; /* subtle black border */
+}
 
-    .faq-question {
-      padding: 18px 24px;
-      font-weight: bold;
-      cursor: pointer;
-      background: transparent;
-      color: whitesmoke; /* ✅ */
-      font-size: 1.1em;
-      letter-spacing: 0.5px;
-      text-align: left;
-    }
+.faq-answer {
+  display: none;
+  padding: 20px 24px;
+  background: transparent;
+  font-size: 1.05em;
+  color: whitesmoke;
+  line-height: 1.6;
+  border-top: 1px solid rgba(255, 170, 0, 0.4);
+  text-align: justify;
+  text-shadow: 
+    -0.8px -0.8px 0 #000,  
+     0.8px -0.8px 0 #000,
+    -0.8px  0.8px 0 #000,
+     0.8px  0.8px 0 #000; /* subtle black border */
+}
 
-    .faq-answer {
-      display: none;
-      padding: 20px 24px;
-      background: transparent;
-      font-size: 1.05em;
-      color: whitesmoke; /* ✅ */
-      line-height: 1.6;
-      border-top: 1px solid rgba(255, 170, 0, 0.4);
-      text-align: justify;
-    }
+.faq-item.active .faq-answer {
+  display: block;
+}
 
-    .faq-item.active .faq-answer {
-      display: block;
-    }
+ul {
+  padding-left: 20px;
+  text-shadow: 
+    -0.8px -0.8px 0 #000,  
+     0.8px -0.8px 0 #000,
+    -0.8px  0.8px 0 #000,
+     0.8px  0.8px 0 #000; /* subtle black border for lists */
+}
 
-    ul {
-      padding-left: 20px;
-    }
+ul li {
+  margin-bottom: 8px;
+  text-align: justify;
+  color: whitesmoke;
+}
 
-    ul li {
-      margin-bottom: 8px;
-      text-align: justify;
-      color: whitesmoke; /* ✅ */
-    }
 </style>
 
 </head>
