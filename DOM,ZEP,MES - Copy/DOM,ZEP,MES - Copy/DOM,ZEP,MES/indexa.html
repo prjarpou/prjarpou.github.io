@@ -59,11 +59,17 @@ body{
 }
 
 
-.falling-item{
-  position:absolute; width:64px; height:64px; background-size:contain; background-repeat:no-repeat; background-position:center;
+.falling-item {
+  position:absolute;
+  width:74px; /* was 64px */
+  height:74px; /* was 64px */
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
   filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
   will-change: transform, top, left;
 }
+
 
 /* Trails & particles */
 .ball-trail{
@@ -840,3 +846,4 @@ function triggerGlow(button) {
 </script>
 </body>
 </html>
+
