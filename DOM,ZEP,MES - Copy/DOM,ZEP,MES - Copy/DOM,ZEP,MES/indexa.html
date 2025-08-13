@@ -42,22 +42,22 @@ body{
 }
 #offersPill{ cursor:default; }
 
-/* ✅ Basket - base responsive style */
 #basket {
   position: absolute;
   bottom: 5vh;
   left: 0;
   width: 30vw;
-  height: auto;
+  height: 20vh; /* ✅ gives it visible space */
   max-height: 180px;
   background: url('basket main.png') no-repeat center/contain;
 }
+
 
 #basket.glow {
   filter: drop-shadow(0 0 12px rgba(255,213,79,.85));
 }
 
-/* Falling items */
+
 .falling-item{
   position:absolute; width:64px; height:64px; background-size:contain; background-repeat:no-repeat; background-position:center;
   filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
@@ -114,19 +114,11 @@ body{
   100%{ opacity:0; transform: translate(-50%, -60px) scale(1.05); }
 }
 
-/* ✅ On-screen controls - base responsive style */
+/* On-screen controls (mobile) */
 .ctrl{
-  position:absolute;
-  bottom:4vh;
-  width:18vw;
-  height:18vw;
-  max-width:90px;
-  max-height:90px;
-  border-radius:50%;
-  display:grid; place-items:center;
-  font-size:28px; font-weight:800; color:#0b1221;
-  background:linear-gradient(180deg,#93c5fd,#60a5fa);
-  box-shadow: 0 12px 30px rgba(96,165,250,.35);
+  position:absolute; bottom:20px; width:64px; height:64px; border-radius:50%;
+  display:grid; place-items:center; font-size:28px; font-weight:800; color:#0b1221;
+  background:linear-gradient(180deg,#93c5fd,#60a5fa); box-shadow: 0 12px 30px rgba(96,165,250,.35);
   user-select:none; -webkit-user-select:none; touch-action:manipulation; z-index:30;
 }
 #left-btn{ left:16px; }
@@ -160,39 +152,42 @@ h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
 }
 .offer-title{ font-weight:800 }
 .offer-meta{ font-size:12px; color:var(--muted) }
-
-/* ✅ Mobile breakpoints for all screen sizes */
-@media (max-width: 360px) {
-  #basket { width: 32vw; max-height: 140px; }
-  .ctrl { width: 20vw; height: 20vw; max-width: 75px; max-height: 75px; }
-}
-@media (min-width: 361px) and (max-width: 480px) {
-  #basket { width: 28vw; }
-  .ctrl { width: 17vw; height: 17vw; }
-}
-@media (min-width: 481px) and (max-width: 768px) {
-  #basket { width: 25vw; }
-  .ctrl { width: 15vw; height: 15vw; }
-}
-@media (min-height: 800px) {
-  #basket { bottom: 7vh; }
-  .ctrl { bottom: 5vh; }
-}
-@media (max-height: 500px) {
-  #basket { bottom: 4vh; }
-  .ctrl { bottom: 2vh; }
-}
-
-/* ✅ Safe area for notches */
-@supports (padding: max(0px)) {
-  #basket {
-    bottom: max(5vh, env(safe-area-inset-bottom));
-  }
-  .ctrl {
-    bottom: max(3vh, env(safe-area-inset-bottom));
-  }
-}
 </style>
+</head>
+<body>
+
+<div class="game-container" id="game">
+  <div class="hud">
+    <div id="score">Score: 0</div>
+    <div class="pill" id="offersPill">🎁 Offers: <span id="offerCount">0</span></div>
+    <div class="hearts" id="hearts"></div>
+  </div>
+
+  <div id="basket"></div>
+
+  <div class="ctrl" id="left-btn">⟵</div>
+  <div class="ctrl" id="right-btn">⟶</div>
+</div>
+
+<div id="flash"></div>
+
+<!-- GAME OVER -->
+<div class="overlay" id="gameOver">
+  <div class="panel">
+    <h1>Game Over</h1>
+    <p class="sub">Final Score: <span id="finalScoreText">0</span></p>
+
+    <h3 style="margin:8px 0 6px">Your Cart</h3>
+    <div class="offer-list" id="offerList"></div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+      <button class="btn green" id="restartBtn">Play Again</button>
+      <button class="btn green" id="homeBtn">Home</button>
+
+<script>
+document.getElementById('homeBtn').addEventListener('click', function() {
+    window.location.href = 'home.html';
+});
 
 
 </head>
@@ -795,4 +790,5 @@ window.addEventListener('resize', ()=>{
 </script>
 </body>
 </html>
+
 
