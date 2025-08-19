@@ -48,10 +48,10 @@ body{
   bottom: 5vh;
   left: 0;
   width: 30vw;
-  height: 20vh; /* ✅ gives it visible space */
-  max-height: 180px;
+  height: 28vh; /* or even 30vh */
   background: url('basket 2.png') no-repeat center/contain;
 }
+
 
 
 #basket.glow {
@@ -69,6 +69,7 @@ body{
   filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
   will-change: transform, top, left;
 }
+
 
 
 /* Trails & particles */
@@ -152,6 +153,18 @@ body{
 #right-btn {
   right: 16px;
   background: url('right.png') no-repeat center/contain;
+}
+#left-btn, 
+#right-btn {
+  position: absolute;
+  bottom: 10vh;           /* keep at bottom */
+  width: 80px;            /* ⬆️ increase size (default might be 64px or less) */
+  height: 80px;           /* ⬆️ increase size */
+  border-radius: 50%;
+  background-size: contain; /* make sure full image shows */
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
 }
 
 /* When pressed/touched: glow effect */
@@ -246,17 +259,6 @@ h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
 }
 
 /* Fuse fire */
-.bomb-anim::after {
-  content: "";
-  position: absolute;
-  top: -22px;
-  right: 20px;
-  width: 28px;
-  height: 28px;
-  background: radial-gradient(circle, #fff176 30%, #ff9100 70%, transparent 100%);
-  border-radius: 50%;
-  animation: fuseFlicker 0.35s infinite alternate, fuseJump 0.6s infinite ease-in-out;
-}
 
 /* Flickering + small bounce for fire */
 @keyframes fuseFlicker {
@@ -278,6 +280,7 @@ h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
 }
 
 /* Main fireball */
+/* Main fireball optimized */
 .bomb-explosion::before {
   content: '';
   position: absolute;
@@ -285,16 +288,15 @@ h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
   left: 50%;
   width: 100%;
   height: 100%;
-  background: 
-    radial-gradient(ellipse 40% 60% at 30% 40%, rgba(255,255,255,1) 0%, transparent 50%),
-    radial-gradient(ellipse 80% 100% at 50% 50%, rgba(255,200,0,1) 0%, rgba(255,100,0,0.9) 30%, rgba(200,0,0,0.8) 60%, rgba(50,0,0,0.3) 85%, transparent 100%);
-  border-radius: 60% 40% 70% 30%;
-  transform: translate(-50%, -50%) scale(0) rotate(0deg);
-  animation: realExplosion 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-  filter: blur(0px) brightness(3);
+  background: radial-gradient(circle, rgba(255,220,150,1) 0%, rgba(255,80,0,0.8) 50%, transparent 80%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 1;
+  will-change: transform, opacity;
+  animation: smoothExplosion 1.2s ease-out forwards;
 }
 
-/* Secondary blast wave */
+/* Secondary shockwave simplified */
 .bomb-explosion::after {
   content: '';
   position: absolute;
@@ -302,10 +304,32 @@ h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
   left: 50%;
   width: 150%;
   height: 150%;
-  background: radial-gradient(circle, rgba(255,100,0,0.4) 0%, rgba(255,0,0,0.2) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,120,0,0.4) 0%, transparent 70%);
   border-radius: 50%;
   transform: translate(-50%, -50%) scale(0);
-  animation: shockwave 1.2s ease-out 0.2s forwards;
+  will-change: transform, opacity;
+  animation: smoothShockwave 1s ease-out 0.15s forwards;
+}
+
+/* Keyframes: only transform + opacity (GPU accelerated) */
+@keyframes smoothExplosion {
+  0%   { transform: translate(-50%, -50%) scale(0);   opacity: 1; }
+  30%  { transform: translate(-50%, -50%) scale(1.8); opacity: 1; }
+  60%  { transform: translate(-50%, -50%) scale(3);   opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(4.5); opacity: 0; }
+}
+
+@keyframes smoothShockwave {
+  0%   { transform: translate(-50%, -50%) scale(0);   opacity: 0.8; }
+  40%  { transform: translate(-50%, -50%) scale(1.5); opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; }
+}
+
+/* Debris + sparks also optimized: use transform only */
+.explosion-debris,
+.explosion-spark,
+.explosion-smoke {
+  will-change: transform, opacity;
 }
 
 /* Debris particles */
@@ -363,44 +387,44 @@ h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
   animation: screenShake 0.8s ease-in-out;
 }
 
+/* Main fireball glow (smoother, more natural burn) */
 @keyframes realExplosion {
   0% { 
     transform: translate(-50%, -50%) scale(0) rotate(0deg); 
     opacity: 1;
-    filter: blur(0px) brightness(5) saturate(2);
+    filter: blur(0px) brightness(4) saturate(2);
     border-radius: 50%;
+    box-shadow: 0 0 40px 20px rgba(255,180,0,0.9),
+                0 0 80px 40px rgba(255,80,0,0.6);
   }
-  5% { 
-    transform: translate(-50%, -50%) scale(0.3) rotate(15deg); 
-    opacity: 1;
-    filter: blur(1px) brightness(8) saturate(3);
-    border-radius: 60% 40% 70% 30%;
-  }
-  15% { 
-    transform: translate(-50%, -50%) scale(1) rotate(45deg); 
-    opacity: 1;
-    filter: blur(2px) brightness(4) saturate(2);
-    border-radius: 70% 30% 60% 40%;
+  10% { 
+    transform: translate(-50%, -50%) scale(0.5) rotate(15deg); 
+    filter: blur(2px) brightness(6) saturate(3);
+    box-shadow: 0 0 60px 30px rgba(255,220,100,1),
+                0 0 120px 60px rgba(255,100,0,0.8);
   }
   30% { 
-    transform: translate(-50%, -50%) scale(2.2) rotate(90deg); 
-    opacity: 0.9;
-    filter: blur(3px) brightness(2) saturate(1.5);
-    border-radius: 80% 20% 70% 30%;
+    transform: translate(-50%, -50%) scale(2) rotate(90deg); 
+    filter: blur(3px) brightness(3) saturate(1.5);
+    box-shadow: 0 0 80px 40px rgba(255,150,0,0.9),
+                0 0 160px 80px rgba(255,50,0,0.6);
   }
   60% { 
-    transform: translate(-50%, -50%) scale(3.8) rotate(180deg); 
+    transform: translate(-50%, -50%) scale(3.5) rotate(180deg); 
     opacity: 0.6;
-    filter: blur(5px) brightness(1) saturate(1);
-    border-radius: 90% 10% 80% 20%;
+    filter: blur(5px) brightness(1.5) saturate(1);
+    box-shadow: 0 0 100px 50px rgba(255,100,0,0.6),
+                0 0 200px 100px rgba(255,0,0,0.4);
   }
   100% { 
-    transform: translate(-50%, -50%) scale(5.5) rotate(270deg); 
+    transform: translate(-50%, -50%) scale(5) rotate(270deg); 
     opacity: 0;
-    filter: blur(8px) brightness(0.3) saturate(0.5);
-    border-radius: 95% 5% 90% 10%;
+    filter: blur(8px) brightness(0.5) saturate(0.5);
+    box-shadow: 0 0 120px 60px rgba(255,80,0,0),
+                0 0 240px 120px rgba(255,0,0,0);
   }
 }
+
 
 @keyframes shockwave {
   0% { 
@@ -521,7 +545,7 @@ h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
 <div class="game-container" id="game">
   <div class="hud">
     <div id="score">Score: 0</div>
-    <div class="pill" id="offersPill">🎁 Offers: <span id="offerCount">0</span></div>
+    <div class="pill" id="offersPill">🎁: <span id="offerCount">0</span></div>
     <div class="hearts" id="hearts"></div>
   </div>
 
@@ -851,8 +875,13 @@ function createItem(forcedX=null, forceReward=false){
     image = rewardImage(type);
   } else {
     // NO random rewards anymore (as requested) → only diamonds/bombs here
-    const r=Math.random();
-    if (score>10 && r<0.18){ type='bomb'; image='bomb 2.png'; }
+const r = Math.random();
+if (score > 10 && r < 0.16) { // was 0.18 → now 0.35 
+    type = 'bomb';
+    image = 'bomb 3.png';
+    
+}
+
 
     else { type='diamond'; image='ball.png'; }
   }
