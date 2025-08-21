@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Login - Catch the Offer</title>
-<title>CHACH — Catch the Offer</title>
+<title> Catch the Offer</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -43,22 +43,18 @@ body{
 }
 #offersPill{ cursor:default; }
 
-#basket {
-  position: absolute;
-  bottom: 5vh;
-  left: 0;
-  width: 30vw;
-  height: 28vh; /* or even 30vh */
-  background: url('basket 2.png') no-repeat center/contain;
-}
-
-
-
+#basket { 
+  position: absolute; 
+  bottom: 5vh; 
+  left: 0; 
+  width: 30vw; 
+  height: 20vh; /* ✅ gives it visible space */ 
+  max-height: 180px;
+  background: url('basket main cyan.png') no-repeat center/contain;
+ }
 #basket.glow {
   filter: drop-shadow(0 0 12px rgba(255,213,79,.85));
 }
-
-
 .falling-item {
   position:absolute;
   width:74px; /* was 64px */
@@ -145,27 +141,33 @@ body{
 }
 
 /* Add the left/right images */
+#left-btn, 
+#right-btn {
+  position: absolute;
+  bottom: 10vh;
+  width: 80px;
+  height: 80px;
+  background: transparent;   /* 🔹 fully transparent */
+  border: none;              /* 🔹 no border */
+  color: white;              /* arrow color */
+  font-size: 48px;           /* arrow size */
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+}
+
 #left-btn {
   left: 16px;
-  background: url('arrow.png') no-repeat center/contain;
 }
 
 #right-btn {
   right: 16px;
-  background: url('arrow.png') no-repeat center/contain;
 }
-#left-btn, 
-#right-btn {
-  position: absolute;
-  bottom: 10vh;           /* keep at bottom */
-  width: 80px;            /* ⬆️ increase size (default might be 64px or less) */
-  height: 80px;           /* ⬆️ increase size */
-  border-radius: 50%;
-  background-size: contain; /* make sure full image shows */
-  background-repeat: no-repeat;
-  background-position: center;
-  cursor: pointer;
-}
+
+
 
 /* When pressed/touched: glow effect */
 .ctrl:active {
@@ -541,6 +543,7 @@ h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
 </style>
 </head>
 <body>
+  
 
 <div class="game-container" id="game">
   <div class="hud">
@@ -556,6 +559,9 @@ h1{ margin:0 0 8px; font-size: clamp(22px,5vw,30px) }
 </div>
 
 <div id="flash"></div>
+
+<div id="left-btn">⟵</div>
+<div id="right-btn">⟶</div>
 
 <!-- GAME OVER -->
 <div class="overlay" id="gameOver">
@@ -1263,4 +1269,3 @@ function triggerGlow(button) {
 </script>
 </body>
 </html>
-
